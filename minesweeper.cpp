@@ -18,8 +18,8 @@ int main(int argc, char ** argv){
 
     refresh();
 
-    //const char out = getch();
-    //printw(out);
+    ch = getch();
+    printw("%c", ch);
 
     getch();
 
