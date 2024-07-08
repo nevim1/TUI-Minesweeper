@@ -1,8 +1,11 @@
 #include <ncurses.h>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <algorithm>
+#include <unistd.h>
 
-//#define red COLOR_RED
+//unistd.h doesn't have milisecond sleep so I jut define one
+#define msleep(msec) usleep(msec * 1000)
 
 using namespace std;
 
@@ -19,15 +22,14 @@ int main(int argc, char ** argv){
     int Iwidth, Iheight, Imines;
 
     bool con;
+
     //screen init 
     initscr();
     raw();
     keypad(stdscr, true);
     noecho();
+    scrollok(stdscr, true);
     //end of screen init
-
-    //init colors
-    //inti_pair(1, COLOR_BLACK, COLOR_WIHTE)
 
     printw("Hello, fellow minesweeper, I have a job for you!\n");
     printw("So, what are you waiting for? Tell me what height, width and number of mines you want\n");
@@ -73,39 +75,86 @@ int main(int argc, char ** argv){
 
     clear();
 
+    curs_set(0);
+    
     printw("H:%d, W:%d, M:%d\n", Iheight, Iwidth, Imines);
+
+    refresh();
 
     curx = getcurx(stdscr);
     cury = getcury(stdscr);
 
-    refresh();
+    int field[Iwidth][Iheight]; // x, y coords
+    bool fieldMask[Iwidth][Iheight];
 
-    do{
-        printw("curx: %i, cury: %i", curx, cury);
+    for(int i = 0; i < Iwidth; i++){
+        fill(field[i], field[i] + Iheight, 0);
+    }
+
+    for(int i = 0; i < Iwidth; i++){
+        fill(fieldMask[i], fieldMask[i] + Iheight, true);   //true is for # (tile is still hidden)
+    }
+
+    /*
+    field[0][1] = 1;
+    fieldMask[2][0] = false;
+    */
+
+
+    for(int i = 0; i < Iheight; i++){
+        for(int j = 0; j < Iwidth; j++){
+            printw("%c", (fieldMask[j][i]) ? '#' : field[j][i] + 48);   //;)
+            refresh();
+            msleep(50);
+        }
+        printw("\n");
+    }
+
+    curs_set(2);
+
+    while(ch != 27){
+        //mvprintw(0, 35, "curx: %i, cury: %i ", curx, cury);
+        move(cury, curx);
         ch = getch();
 
-        if(ch == 259){
-            printw("key up! ");
+        if(ch == 259 || ch == 119){          //up
             cury --;
-        } else if(ch == 258){
-            printw("key down! ");
+        } else if(ch == 258 || ch == 115){   //down
             cury ++;
-        } else if(ch == 260){
-            printw("key left! ");
+        } else if(ch == 260 || ch == 97){    //right
             curx --;
-        } else if(ch == 261){
-            printw("key right! ");
+        } else if(ch == 261 || ch == 100){   //left
             curx ++;
-        }                        
+        } else if(ch == 10){
+            fieldMask[curx][cury-1] = false;
+            printw("%c", (fieldMask[curx][cury-1]) ? '#' : field[curx][cury-1] + 48);
+        }   // space 32              
 
-        move(cury, curx);
+        //boundary check ;p
+        if(curx < 0){
+            curx = 0;
+        }
+        if(cury < 1){
+            cury = 1;
+        }
+        if(curx >= Iwidth){
+            curx = Iwidth - 1;
+        }
+        if(cury > Iheight){
+            cury = Iheight;
+        }
+
         refresh();
+    }
 
-    }while(ch != 27);
+    curs_set(0);
 
-    clear();
+    mvprintw(0, 0, "press any key to end program ");
+    refresh();
+    ch = getch();
 
-    mvprintw(0, 0, "press any key to end program");
+    printw("%d", ch);
+    refresh();
     getch();
 
     endwin();
