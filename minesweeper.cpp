@@ -23,6 +23,8 @@ int main(int argc, char ** argv){
 
     bool con;
 
+    int padding = 5;       //how much space is between playing field and status (bar?)
+
     //screen init 
     initscr();
     raw();
@@ -77,8 +79,9 @@ int main(int argc, char ** argv){
 
     curs_set(0);
     
-    printw("H:%d, W:%d, M:%d\n", Iheight, Iwidth, Imines);
-
+    mvprintw(0, Iwidth + padding, "H:%d, W:%d, M:%d", Iheight, Iwidth, Imines);
+    move(0, 0);
+    
     refresh();
 
     curx = getcurx(stdscr);
@@ -103,11 +106,10 @@ int main(int argc, char ** argv){
 
     for(int i = 0; i < Iheight; i++){
         for(int j = 0; j < Iwidth; j++){
-            printw("%c", (fieldMask[j][i]) ? '#' : field[j][i] + 48);   //;)
+            mvprintw(i, j, "%c", (fieldMask[j][i]) ? '#' : field[j][i] + 48);   //;)
             refresh();
             msleep(50);
         }
-        printw("\n");
     }
 
     curs_set(2);
@@ -126,22 +128,22 @@ int main(int argc, char ** argv){
         } else if(ch == 261 || ch == 100){   //left
             curx ++;
         } else if(ch == 10){
-            fieldMask[curx][cury-1] = false;
-            printw("%c", (fieldMask[curx][cury-1]) ? '#' : field[curx][cury-1] + 48);
+            fieldMask[curx][cury] = false;
+            printw("%c", (fieldMask[curx][cury]) ? '#' : field[curx][cury] + 48);
         }   // space 32              
 
-        //boundary check ;p
+        //boundary check ;^p
         if(curx < 0){
             curx = 0;
         }
-        if(cury < 1){
-            cury = 1;
+        if(cury < 0){
+            cury = 0;
         }
         if(curx >= Iwidth){
             curx = Iwidth - 1;
         }
-        if(cury > Iheight){
-            cury = Iheight;
+        if(cury >= Iheight){
+            cury = Iheight - 1;
         }
 
         refresh();
@@ -149,7 +151,7 @@ int main(int argc, char ** argv){
 
     curs_set(0);
 
-    mvprintw(0, 0, "press any key to end program ");
+    mvprintw(0, Iwidth + padding, "press any key to end program ");
     refresh();
     ch = getch();
 
