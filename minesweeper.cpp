@@ -3,6 +3,8 @@
 #include <boost/lexical_cast.hpp>
 #include <algorithm>
 #include <unistd.h>
+#include <cstdlib>
+#include <time.h>
 
 //unistd.h doesn't have milisecond sleep so I jut define one
 #define msleep(msec) usleep(msec * 1000)
@@ -15,8 +17,7 @@ int main(int argc, char ** argv){
 
     int ch;
 
-    int curx;
-    int cury;
+    int curx, cury;
 
     char Swidth[10], Sheight[10], Smines[10];
     int Iwidth, Iheight, Imines;
@@ -24,6 +25,10 @@ int main(int argc, char ** argv){
     bool con;
 
     int padding = 5;       //how much space is between playing field and status (bar?)
+
+    int ranx, rany;
+
+    srand(time(0));
 
     //screen init 
     initscr();
@@ -79,13 +84,9 @@ int main(int argc, char ** argv){
 
     curs_set(0);
     
-    mvprintw(0, Iwidth + padding, "H:%d, W:%d, M:%d", Iheight, Iwidth, Imines);
-    move(0, 0);
-    
-    refresh();
+    mvprintw(0, Iwidth * 2 + padding, "H:%d, W:%d, M:%d", Iheight, Iwidth, Imines);
 
-    curx = getcurx(stdscr);
-    cury = getcury(stdscr);
+    refresh();
 
     int field[Iwidth][Iheight]; // x, y coords
     bool fieldMask[Iwidth][Iheight];
@@ -103,16 +104,56 @@ int main(int argc, char ** argv){
     fieldMask[2][0] = false;
     */
 
+    //mines prep
+    if(Imines > (Iwidth * Iheight)){
+        Imines = (Iwidth * Iheight);
+    }
+
+    for(int i = 0; i < Imines; i++){
+        ranx = rand() % (Iwidth);
+        rany = rand() % (Iheight);
+        if(field[ranx][rany] == -1){
+            Imines++;
+            continue;
+        }
+        field[ranx][rany] = -1;
+
+        if(field[ranx-1][rany] != -1 && ranx != 0){
+            field[ranx-1][rany] += 1;
+        }
+        if(field[ranx+1][rany] != -1 && ranx != (Iwidth - 1)){
+            field[ranx+1][rany] += 1;
+        }
+        if(field[ranx-1][rany-1] != -1 && ranx != 0 && rany != 0){
+            field[ranx-1][rany-1] += 1;
+        }
+        if(field[ranx][rany-1] != -1 && rany != 0){
+            field[ranx][rany-1] += 1;
+        }
+        if(field[ranx+1][rany-1] != -1 && ranx != (Iwidth - 1) && rany != 0){
+            field[ranx+1][rany-1] += 1;
+        }
+        if(field[ranx+1][rany+1] != -1 && ranx != (Iwidth - 1) && rany != (Iheight - 1)){
+            field[ranx+1][rany+1] += 1;
+        }
+        if(field[ranx][rany+1] != -1 && rany != (Iheight - 1)){
+            field[ranx][rany+1] += 1;
+        }
+        if(field[ranx-1][rany+1] != -1 && ranx != 0 && rany != (Iheight - 1)){
+            field[ranx-1][rany+1] += 1;
+        }
+    }
 
     for(int i = 0; i < Iheight; i++){
         for(int j = 0; j < Iwidth; j++){
-            mvprintw(i, j, "%c", (fieldMask[j][i]) ? '#' : field[j][i] + 48);   //;)
+            mvprintw(i, (j * 2), "%c", (fieldMask[j][i]) ? '#' : field[j][i] + 48);   //;)
             refresh();
             msleep(50);
         }
     }
 
     curs_set(2);
+    
 
     while(ch != 27){
         //mvprintw(0, 35, "curx: %i, cury: %i ", curx, cury);
@@ -124,12 +165,12 @@ int main(int argc, char ** argv){
         } else if(ch == 258 || ch == 115){   //down
             cury ++;
         } else if(ch == 260 || ch == 97){    //right
-            curx --;
+            curx -= 2;
         } else if(ch == 261 || ch == 100){   //left
-            curx ++;
+            curx += 2;
         } else if(ch == 10){
-            fieldMask[curx][cury] = false;
-            printw("%c", (fieldMask[curx][cury]) ? '#' : field[curx][cury] + 48);
+            fieldMask[curx/2][cury] = false;
+            printw("%c", (fieldMask[curx/2][cury]) ? '#' : field[curx/2][cury] + 48);
         }   // space 32              
 
         //boundary check ;^p
@@ -139,8 +180,8 @@ int main(int argc, char ** argv){
         if(cury < 0){
             cury = 0;
         }
-        if(curx >= Iwidth){
-            curx = Iwidth - 1;
+        if(curx >= (Iwidth * 2)){
+            curx = (Iwidth * 2) - 2;
         }
         if(cury >= Iheight){
             cury = Iheight - 1;
@@ -151,7 +192,7 @@ int main(int argc, char ** argv){
 
     curs_set(0);
 
-    mvprintw(0, Iwidth + padding, "press any key to end program ");
+    mvprintw(0, Iwidth * 2 + padding, "press any key to end program ");
     refresh();
     ch = getch();
 
