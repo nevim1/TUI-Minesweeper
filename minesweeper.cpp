@@ -5,11 +5,17 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <time.h>
+#include <vector>
 
 //unistd.h doesn't have milisecond sleep so I jut define one
 #define msleep(msec) usleep(msec * 1000)
 
 using namespace std;
+
+struct pos{
+    int x;
+    int y;
+};
 
 int main(int argc, char ** argv){
     using boost::lexical_cast;
@@ -154,6 +160,8 @@ int main(int argc, char ** argv){
 
     curs_set(2);
     
+    move(0, 0);
+    curx = cury = 0;
 
     while(ch != 27){
         //mvprintw(0, 35, "curx: %i, cury: %i ", curx, cury);
@@ -169,8 +177,35 @@ int main(int argc, char ** argv){
         } else if(ch == 261 || ch == 100){   //left
             curx += 2;
         } else if(ch == 10){
-            fieldMask[curx/2][cury] = false;
-            printw("%c", (fieldMask[curx/2][cury]) ? '#' : field[curx/2][cury] + 48);
+
+            pos bfsPos;
+            bfsPos.x = curx/2;
+            bfsPos.y = cury;
+
+            pos currentPos;
+
+            vector<pos> queue;
+            queue.emplace(queue.begin(), bfsPos);
+            while(!queue.empty()){
+                currentPos = queue[0];
+                queue.erase(queue.begin());
+
+                mvprintw(0, 40, "bruh %d %d", currentPos.x, currentPos.y);
+
+                if(!fieldMask[currentPos.x][currentPos.y]){continue;}
+
+                mvprintw(currentPos.y, currentPos.x*2, "%c", (fieldMask[curx/2][cury]) ? '#' : field[curx/2][cury] + 48);
+
+                if(field[currentPos.x][currentPos.y] == 0){
+                    fieldMask[currentPos.x][currentPos.y] = false;
+                    //mvprintw(cury, curx, );
+                    refresh();
+                    msleep(250);
+                    currentPos.x++;
+                    queue.push_back(currentPos);
+                }
+
+            }
         }   // space 32              
 
         //boundary check ;^p
@@ -203,3 +238,4 @@ int main(int argc, char ** argv){
     endwin();
     return 0;
 }
+
