@@ -190,7 +190,7 @@ int main(int argc, char ** argv){
                 currentPos = queue[0];
                 queue.erase(queue.begin());
 
-                mvprintw(0, 40, "bruh %d %d", currentPos.x, currentPos.y);
+                mvprintw(0, 40, "bruh %d %d ", currentPos.x, currentPos.y);
 
                 if(!fieldMask[currentPos.x][currentPos.y]){continue;}
 
