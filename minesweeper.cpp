@@ -10,6 +10,8 @@
 //unistd.h doesn't have milisecond sleep so I jut define one
 #define msleep(msec) usleep(msec * 1000)
 
+//bruh just testing
+
 using namespace std;
 
 struct pos{
