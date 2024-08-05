@@ -179,6 +179,7 @@ int main(int argc, char ** argv){
         } else if(ch == 261 || ch == 100){   //left
             curx += 2;
         } else if(ch == 10){
+            curs_set(0);
 
             pos bfsPos;
             bfsPos.x = curx/2;
@@ -196,18 +197,28 @@ int main(int argc, char ** argv){
 
                 if(!fieldMask[currentPos.x][currentPos.y]){continue;}
 
-                mvprintw(currentPos.y, currentPos.x*2, "%c", (fieldMask[curx/2][cury]) ? '#' : field[curx/2][cury] + 48);
+                fieldMask[currentPos.x][currentPos.y] = false;
+                //mvprintw(currentPos.y, currentPos.x*2, "%c", (fieldMask[curx/2][cury]) ? '#' : field[curx/2][cury] + 48);
+
+                mvprintw(currentPos.y, currentPos.x * 2, "%c", field[currentPos.x][currentPos.y] + 48);
 
                 if(field[currentPos.x][currentPos.y] == 0){
-                    fieldMask[currentPos.x][currentPos.y] = false;
                     //mvprintw(cury, curx, );
                     refresh();
-                    msleep(250);
+                    msleep(20);
                     currentPos.x++;
                     queue.push_back(currentPos);
+                    currentPos.x -= 2;
+                    queue.push_back(currentPos);
+                    currentPos.x ++;
+                    currentPos.y ++;
+                    queue.push_back(currentPos);
+                    currentPos.y -= 2;
+                    queue.push_back(currentPos);
                 }
-
             }
+
+            curs_set(2);
         }   // space 32              
 
         //boundary check ;^p
