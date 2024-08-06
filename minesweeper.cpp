@@ -162,8 +162,9 @@ int main(int argc, char ** argv){
 
     curs_set(2);
     
-    move(0, 0);
-    curx = cury = 0;
+    curx = (Iwidth / 2) * 2;
+    cury = Iheight / 2;
+    move(curx, cury);
 
     while(ch != 27){
         //mvprintw(0, 35, "curx: %i, cury: %i ", curx, cury);
@@ -193,9 +194,11 @@ int main(int argc, char ** argv){
                 currentPos = queue[0];
                 queue.erase(queue.begin());
 
-                mvprintw(0, 40, "bruh %d %d ", currentPos.x, currentPos.y);
+                //mvprintw(0, 40, "bruh %d %d ", currentPos.x, currentPos.y);
 
                 if(!fieldMask[currentPos.x][currentPos.y]){continue;}
+
+                if(currentPos.x < 0 || currentPos.y < 0 || currentPos.x > Iwidth - 1 || currentPos.y > Iheight - 1){continue;}
 
                 fieldMask[currentPos.x][currentPos.y] = false;
                 //mvprintw(currentPos.y, currentPos.x*2, "%c", (fieldMask[curx/2][cury]) ? '#' : field[curx/2][cury] + 48);
@@ -203,18 +206,34 @@ int main(int argc, char ** argv){
                 mvprintw(currentPos.y, currentPos.x * 2, "%c", field[currentPos.x][currentPos.y] + 48);
 
                 if(field[currentPos.x][currentPos.y] == 0){
-                    //mvprintw(cury, curx, );
                     refresh();
                     msleep(20);
                     currentPos.x++;
                     queue.push_back(currentPos);
+                    currentPos.y++;
+                    queue.push_back(currentPos);
+                    currentPos.x--;
+                    queue.push_back(currentPos);
+                    currentPos.x--;
+                    queue.push_back(currentPos);
+                    currentPos.y--;
+                    queue.push_back(currentPos);
+                    currentPos.y--;
+                    queue.push_back(currentPos);
+                    currentPos.x++;
+                    queue.push_back(currentPos);
+                    currentPos.x++;
+                    queue.push_back(currentPos);
+
+                    /*
+                    currentPos.y--;
                     currentPos.x -= 2;
                     queue.push_back(currentPos);
                     currentPos.x ++;
                     currentPos.y ++;
                     queue.push_back(currentPos);
                     currentPos.y -= 2;
-                    queue.push_back(currentPos);
+                    queue.push_back(currentPos);*/
                 }
             }
 
