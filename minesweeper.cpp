@@ -98,6 +98,7 @@ int main(int argc, char ** argv){
 
     int field[Iwidth][Iheight]; // x, y coords
     bool fieldMask[Iwidth][Iheight];
+    bool flagMask[Iwidth][Iheight];
 
     for(int i = 0; i < Iwidth; i++){
         fill(field[i], field[i] + Iheight, 0);
@@ -105,6 +106,10 @@ int main(int argc, char ** argv){
 
     for(int i = 0; i < Iwidth; i++){
         fill(fieldMask[i], fieldMask[i] + Iheight, true);   //true is for # (tile is still hidden)
+    }
+
+    for(int i = 0; i < Iwidth; i++){
+        fill(flagMask[i], flagMask[i] + Iheight, false);    //false if or no flag
     }
 
     /*
@@ -200,6 +205,8 @@ int main(int argc, char ** argv){
 
                 if(currentPos.x < 0 || currentPos.y < 0 || currentPos.x > Iwidth - 1 || currentPos.y > Iheight - 1){continue;}
 
+                if(flagMask[currentPos.x][currentPos.y]){continue;}
+
                 fieldMask[currentPos.x][currentPos.y] = false;
                 //mvprintw(currentPos.y, currentPos.x*2, "%c", (fieldMask[curx/2][cury]) ? '#' : field[curx/2][cury] + 48);
 
@@ -238,7 +245,17 @@ int main(int argc, char ** argv){
             }
 
             curs_set(2);
-        }   // space 32              
+        } else if(ch == 32){
+            if(!fieldMask[curx/2][cury]){continue;}
+            
+            if(flagMask[curx/2][cury]){
+                mvprintw(cury, curx, "#");
+                flagMask[curx/2][cury] = false;
+            } else {
+                mvprintw(cury, curx, "P");
+                flagMask[curx/2][cury] = true;
+            }
+        }            
 
         //boundary check ;^p
         if(curx < 0){
