@@ -107,11 +107,6 @@ int main(int argc, char ** argv){
         fill(fieldMask[i], fieldMask[i] + Iheight, true);   //true is for # (tile is still hidden)
     }
 
-    /*
-    field[0][1] = 1;
-    fieldMask[2][0] = false;
-    */
-
     //mines prep
     if(Imines > (Iwidth * Iheight)){
         Imines = (Iwidth * Iheight);
@@ -167,7 +162,6 @@ int main(int argc, char ** argv){
     move(curx, cury);
 
     while(ch != 27){
-        //mvprintw(0, 35, "curx: %i, cury: %i ", curx, cury);
         move(cury, curx);
         ch = getch();
 
@@ -194,14 +188,11 @@ int main(int argc, char ** argv){
                 currentPos = queue[0];
                 queue.erase(queue.begin());
 
-                //mvprintw(0, 40, "bruh %d %d ", currentPos.x, currentPos.y);
-
                 if(!fieldMask[currentPos.x][currentPos.y]){continue;}
 
                 if(currentPos.x < 0 || currentPos.y < 0 || currentPos.x > Iwidth - 1 || currentPos.y > Iheight - 1){continue;}
 
                 fieldMask[currentPos.x][currentPos.y] = false;
-                //mvprintw(currentPos.y, currentPos.x*2, "%c", (fieldMask[curx/2][cury]) ? '#' : field[curx/2][cury] + 48);
 
                 mvprintw(currentPos.y, currentPos.x * 2, "%c", field[currentPos.x][currentPos.y] + 48);
 
@@ -224,16 +215,6 @@ int main(int argc, char ** argv){
                     queue.push_back(currentPos);
                     currentPos.x++;
                     queue.push_back(currentPos);
-
-                    /*
-                    currentPos.y--;
-                    currentPos.x -= 2;
-                    queue.push_back(currentPos);
-                    currentPos.x ++;
-                    currentPos.y ++;
-                    queue.push_back(currentPos);
-                    currentPos.y -= 2;
-                    queue.push_back(currentPos);*/
                 }
             }
 
